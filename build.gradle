@@ -1,0 +1,61 @@
+plugins {
+    id 'java'
+    id 'net.serenity-bdd.serenity-gradle-plugin' version '4.2.12'
+}
+
+group = 'co.com.petstore'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    serenityVersion = '4.2.12'
+    serenityCucumberVersion = '4.2.12'
+    cucumberVersion = '7.20.1'
+    junitVersion = '4.13.2'
+}
+
+dependencies {
+    // Serenity BDD Core (en main para tasks, questions, endpoints, models)
+    implementation "net.serenity-bdd:serenity-core:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-model:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-ensure:${serenityVersion}"
+
+    // Serenity Screenplay
+    implementation "net.serenity-bdd:serenity-screenplay:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-screenplay-rest:${serenityVersion}"
+
+    // Serenity Rest (RestAssured integration)
+    implementation "net.serenity-bdd:serenity-rest-assured:${serenityVersion}"
+
+    // Serenity + Cucumber integration
+    testImplementation "net.serenity-bdd:serenity-cucumber:${serenityCucumberVersion}"
+
+    // Cucumber
+    testImplementation "io.cucumber:cucumber-java:${cucumberVersion}"
+    testImplementation "io.cucumber:cucumber-junit:${cucumberVersion}"
+
+    // JUnit 4
+    testImplementation "junit:junit:${junitVersion}"
+
+    // Lombok (optional, for POJOs)
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    testCompileOnly 'org.projectlombok:lombok:1.18.36'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+}
+
+test {
+    testLogging.showStandardStreams = true
+    systemProperties System.getProperties()
+}
+
+gradle.startParameter.continueOnFailure = true
+
+serenity {
+    reports = ['single-page-html']
+}
