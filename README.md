@@ -98,10 +98,10 @@ environments {
 
 ## Ejecución
 
-Nota: en este entorno, Gradle debe ejecutarse con Java 17 para evitar incompatibilidades del runtime local.
+Gradle ya está configurado para usar Java 17 desde `gradle.properties`, por lo que no es necesario exportar `JAVA_HOME` en cada comando.
 
 ```bash
-JAVA_HOME=$(/usr/libexec/java_home -v 17) ./gradlew clean test aggregate
+./gradlew clean test aggregate
 ```
 
 ## Reporte De Resultados
