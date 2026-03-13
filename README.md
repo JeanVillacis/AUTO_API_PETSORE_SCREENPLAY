@@ -1,112 +1,92 @@
 # AUTO_API_PETSTORE_SCREENPLAY
 
-Proyecto de automatización de pruebas sobre la API REST pública de **PetStore**, utilizando el patrón de diseño **Screenplay** junto con **Serenity BDD**, **Cucumber** y **Gradle**.
+Proyecto de automatización de pruebas API para PetStore Swagger, implementado con Serenity BDD y Screenplay Pattern sobre Gradle.
 
----
+## Objetivo
 
-## API bajo prueba
+Validar el ciclo CRUD completo del recurso `user` en la API pública de PetStore mediante un enfoque declarativo en Gherkin y una arquitectura Screenplay orientada a mantenibilidad.
 
-**PetStore Swagger API**
-- Documentación y exploración interactiva: [https://petstore.swagger.io/#/](https://petstore.swagger.io/#/)
-- URL base de los endpoints: `https://petstore.swagger.io/v2`
+- API: https://petstore.swagger.io/#/
+- Base URL: https://petstore.swagger.io/v2
 
-Esta API pública simula un sistema de gestión de una tienda de mascotas. Expone recursos como `user`, `pet` y `store`, cada uno con operaciones CRUD completas. En este proyecto se automatizan las operaciones del recurso **user**.
+## Stack Tecnológico
 
----
+| Tecnología | Versión |
+|---|---|
+| Java | 11 (source/target del proyecto) |
+| Gradle Wrapper | 8.13 |
+| Serenity BDD | 4.2.12 |
+| Serenity Screenplay | 4.2.12 |
+| Serenity Screenplay REST | 4.2.12 |
+| Serenity Cucumber | 4.2.12 |
+| Cucumber | 7.20.1 |
+| JUnit | 4.13.2 |
 
-## Tecnologías utilizadas
+## Arquitectura Screenplay Implementada
 
-| Tecnología | Versión | Rol en el proyecto |
-|---|---|---|
-| Java | 21 | Lenguaje de programación |
-| Gradle | 8.13 | Gestión de dependencias y construcción |
-| Serenity BDD | 4.2.12 | Framework de reportes y orquestación de pruebas |
-| Serenity Screenplay | 4.2.12 | Patrón de diseño para las pruebas |
-| Serenity REST | 4.2.12 | Integración con RestAssured para llamadas HTTP |
-| Cucumber | 7.20.1 | Motor de escenarios BDD en lenguaje Gherkin |
-| JUnit 4 | 4.13.2 | Mecanismo de arranque que habilita el uso de `@RunWith` |
-| CucumberWithSerenity | 4.2.12 | Cucumber Test Runner integrado con Serenity |
-| Lombok | 1.18.36 | Reducción de código boilerplate en modelos |
+- `Models`: encapsulan el request body (`UserModel`).
+- `Tasks`: encapsulan acciones HTTP por responsabilidad única.
+- `Questions`: extraen información de la última respuesta HTTP.
+- `Step Definitions`: orquestan el flujo de negocio del escenario.
+- `Runner`: ejecuta Cucumber con Serenity.
 
----
+## Estructura Actual Del Proyecto
 
-## Patrón de diseño: Screenplay REST
-
-El proyecto implementa el patrón **Screenplay REST**, que organiza las pruebas en torno a tres conceptos:
-
-- **Actor**: representa al usuario que ejecuta las acciones (en este caso, el actor `"Usuario"`).
-- **Tasks (Tareas)**: acciones de alto nivel que el actor realiza, como `CrearUsuario`, `ObtenerUsuario`, `ActualizarUsuario` y `EliminarUsuario`.
-- **Questions (Preguntas)**: permiten al actor consultar el estado del sistema para verificar resultados, como `LaRespuesta` que extrae el código HTTP y campos del JSON de respuesta.
-
-Este patrón favorece la legibilidad, la reutilización de código y el mantenimiento a largo plazo.
-
----
-
-## Estructura del proyecto
-
-```
+```text
 AUTO_API_PETSORE_SCREENPLAY/
-│
-├── build.gradle                          Dependencias y configuración de Gradle
-├── settings.gradle                       Nombre del proyecto
-├── gradle.properties                     Propiedades del daemon de Gradle
-│
+├── build.gradle
+├── gradle.properties
+├── gradlew
+├── settings.gradle
+├── README.md
+├── gradle/
+│   └── wrapper/
+│       └── gradle-wrapper.properties
 └── src/
     ├── main/
-    │   └── java/co/com/petstore/
-    │       ├── endpoints/
-    │       │   └── EndpointsUsuario.java  Constantes con los paths de la API
-    │       ├── models/
-    │       │   └── UserModel.java         POJO que representa un usuario
-    │       ├── questions/
-    │       │   └── LaRespuesta.java       Pregunta que extrae datos de la última respuesta HTTP
-    │       └── tasks/
-    │           ├── CrearUsuario.java      Tarea: POST /user
-    │           ├── ObtenerUsuario.java    Tarea: GET /user/{username}
-    │           ├── ActualizarUsuario.java Tarea: PUT /user/{username}
-    │           └── EliminarUsuario.java   Tarea: DELETE /user/{username}
-    │
+    │   └── java/
+    │       └── co/com/petstore/
+    │           ├── endpoints/
+    │           │   └── EndpointsUsuario.java
+    │           ├── models/
+    │           │   └── UserModel.java
+    │           ├── questions/
+    │           │   ├── ResponseCode.java
+    │           │   └── ResponseField.java
+    │           ├── runners/
+    │           │   └── CucumberWithSerenityRunner.java
+    │           ├── stepdefinitions/
+    │           │   └── UserCrudStepDefinitions.java
+    │           └── tasks/
+    │               ├── ActualizarUsuario.java
+    │               ├── CrearUsuario.java
+    │               ├── EliminarUsuario.java
+    │               └── ObtenerUsuario.java
     └── test/
-        ├── java/co/com/petstore/
-        │   ├── runners/
-        │   │   └── CucumberWithSerenityRunner.java   Punto de entrada de las pruebas
-        │   └── stepdefinitions/
-        │       └── DefinicionDePasosCrudUsuario.java  Glue entre Gherkin y Screenplay
-        │
         └── resources/
-            ├── serenity.conf              URL base y configuración de Serenity
+            ├── serenity.conf
             └── features/
-                └── crud_usuario.feature   Escenarios de prueba en Gherkin
+                └── crud_usuario.feature
 ```
 
----
+## Cobertura Funcional Del Escenario
 
-## Escenario automatizado
+El archivo `crud_usuario.feature` utiliza `Esquema del escenario` con tabla `Ejemplos` para ejecutar múltiples datasets del mismo flujo:
 
-El archivo `crud_usuario.feature` cubre el ciclo de vida completo (**CRUD**) de un usuario:
-
-| Paso | Operación | Endpoint | Verificación |
-|---|---|---|---|
-| 1 | Crear usuario | `POST /user` | HTTP 200 |
-| 2 | Leer usuario | `GET /user/{username}` | HTTP 200 + datos correctos |
-| 3 | Actualizar usuario | `PUT /user/{username}` | HTTP 200 |
-| 4 | Leer usuario actualizado | `GET /user/{username}` | HTTP 200 + datos nuevos |
-| 5 | Eliminar usuario | `DELETE /user/{username}` | HTTP 200 |
-| 6 | Verificar eliminación | `GET /user/{username}` | HTTP 404 |
-
----
+1. Registro de usuario.
+2. Consulta por username y validación de datos.
+3. Actualización de perfil.
+4. Nueva consulta y validación de cambios.
+5. Eliminación de usuario.
+6. Verificación de no existencia (404).
 
 ## Configuración
 
-La URL base de la API se configura en `src/test/resources/serenity.conf`:
+La URL base se define en `src/test/resources/serenity.conf`:
 
-```
+```hocon
 serenity {
   project.name = "PetStore API CRUD"
-}
-
-webdriver {
-  driver = provided
 }
 
 environments {
@@ -116,38 +96,24 @@ environments {
 }
 ```
 
-Este valor es leído dinámicamente por la clase `DefinicionDePasosCrudUsuario` usando `EnvironmentSpecificConfiguration`, lo que permite cambiar el entorno sin modificar código Java.
-
----
-
 ## Ejecución
 
-**Prerrequisito:** Java 21 instalado.
-
-Ejecutar todas las pruebas y generar el reporte:
+Nota: en este entorno, Gradle debe ejecutarse con Java 17 para evitar incompatibilidades del runtime local.
 
 ```bash
-JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home ./gradlew clean test aggregate
+JAVA_HOME=$(/usr/libexec/java_home -v 17) ./gradlew clean test aggregate
 ```
 
-Abrir el reporte de resultados en el navegador:
+## Reporte De Resultados
+
+Serenity genera el reporte HTML en:
+
+```text
+target/site/serenity/index.html
+```
+
+Para abrirlo en macOS:
 
 ```bash
 open target/site/serenity/index.html
 ```
-
----
-
-## Reportes
-
-Serenity genera un reporte HTML detallado en:
-
-```
-target/site/serenity/index.html
-```
-
-El reporte incluye:
-- Resultado de cada escenario (pasado / fallido)
-- Detalle de cada paso ejecutado con su descripción legible
-- Evidencia de las llamadas HTTP realizadas (request y response)
-- Estadísticas generales de la ejecución
